@@ -9,7 +9,7 @@
 #define _DEBUG_
 
 extern "C" {
-#include "wifi_spi.h"
+//#include "wifi_spi.h"
 #include "wl_types.h"
 #include "debug.h"
 }

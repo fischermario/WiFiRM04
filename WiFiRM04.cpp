@@ -4,7 +4,7 @@
 extern "C" {
   #include "utility/wl_definitions.h"
   #include "utility/wl_types.h"
-  #include "debug.h"
+  //#include "debug.h"
 }
 
 // XXX: don't make assumptions about the value of MAX_SOCK_NUM.

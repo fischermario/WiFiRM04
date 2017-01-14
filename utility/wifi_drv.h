@@ -2,7 +2,8 @@
 #define WiFi_Drv_h
 
 #include <inttypes.h>
-#include "wifi_spi.h"
+//#include "wifi_spi.h"
+#include "wl_definitions.h"
 #include "IPAddress.h"
 #include "../WiFiRM04Udp.h"
 

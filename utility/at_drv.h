@@ -1,8 +1,11 @@
 #ifndef AT_DRV_H
 #define AT_DRV_H
 
-#include "wifi_spi.h"
-#include <QueueList.h>
+#include <Arduino.h>
+#include <pins_arduino.h>
+
+#include "wl_definitions.h"
+#include "QueueList.h"
 
 #define SERIAL_TIMEOUT			50
 
@@ -30,7 +33,39 @@
 #define PROTO_MODE_TCP			0
 #define PROTO_MODE_UDP			1
 
-typedef enum LinuxTcpState {
+#define IS_HARDWARESERIAL		0
+#define IS_SOFTSERIAL			1
+#define IS_ALTSOFTSERIAL		2
+
+// https://forum.arduino.cc/index.php?topic=113656.0
+// http://arduino.stackexchange.com/questions/21137/arduino-how-to-get-the-board-type-in-code
+
+// Arduino Mega or "a board that has more than one hardware serial port"
+#ifdef ARDUINO_AVR_MEGA2560 // || SERIAL_PORT_HARDWARE_OPEN
+	// ToDo: ifndef SERIAL_TYPE, AT_DRV_SERIAL1 ...
+	#define SERIAL_TYPE				HardwareSerial
+	#define SERIAL_TYPE_NUM			IS_HARDWARESERIAL
+	// use Serial1 as default serial port to communicate with WiFi module
+	#define AT_DRV_SERIAL1			SERIAL_PORT_HARDWARE_OPEN
+	#if MAX_SOCK_NUM > 1
+		// use Serial2 to communicate the uart2 of our WiFi module
+		#define AT_DRV_SERIAL2			SERIAL_PORT_HARDWARE_OPEN1
+	#endif
+// all other Arduinos
+#else
+	#include <AltSoftSerial.h>
+
+	#define SERIAL_TYPE				AltSoftSerial
+	#define SERIAL_TYPE_NUM			IS_ALTSOFTSERIAL
+	// use Serial1 as default serial port to communicate with WiFi module
+	#define AT_DRV_SERIAL1			mySerial
+	//#pragma message "AltSoftSerial in at_drv.h"
+#endif
+
+//#pragma message "SERIAL_TYPE is " SERIAL_TYPE
+//#pragma message "SERIAL_TYPE_STR is " SERIAL_TYPE_STR
+
+enum LinuxTcpState {
 	TCP_ESTABLISHED = 1,
 	TCP_SYN_SENT,
 	TCP_SYN_RECV,
@@ -49,7 +84,7 @@ typedef enum LinuxTcpState {
 class AtDrv
 {
 private:
-	static HardwareSerial* serialPort[2];
+	static SERIAL_TYPE* serialPort[2];
 	static bool atMode;
 	static uint16_t sockPort[2];
 	static QueueList<uint8_t> sock0DataQueue;

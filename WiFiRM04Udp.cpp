@@ -1,7 +1,7 @@
 
 extern "C" {
   #include "utility/debug.h"
-  #include "utility/wifi_spi.h"
+  //#include "utility/wifi_spi.h"
 }
 #include <string.h>
 #include "server_drv.h"

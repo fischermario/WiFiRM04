@@ -12,6 +12,7 @@
 #define UDP_SOCKET  2
 #define RAW_SOCKET  3
 
+// doppelt!!!!
 #define SOCK_NOT_AVAIL  255
 
 #include "wl_definitions.h"
