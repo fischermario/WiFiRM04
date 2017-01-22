@@ -7,6 +7,9 @@
 #include "wl_definitions.h"
 #include "QueueList.h"
 
+#include "../WiFiRM04Config.h"
+
+
 #define SERIAL_TIMEOUT			50
 
 #define ENC_TYPE_NONE			0
@@ -33,33 +36,58 @@
 #define PROTO_MODE_TCP			0
 #define PROTO_MODE_UDP			1
 
-#define IS_HARDWARESERIAL		0
-#define IS_SOFTSERIAL			1
-#define IS_ALTSOFTSERIAL		2
-
 // https://forum.arduino.cc/index.php?topic=113656.0
 // http://arduino.stackexchange.com/questions/21137/arduino-how-to-get-the-board-type-in-code
 
-// Arduino Mega or "a board that has more than one hardware serial port"
-#ifdef ARDUINO_AVR_MEGA2560 // || SERIAL_PORT_HARDWARE_OPEN
-	// ToDo: ifndef SERIAL_TYPE, AT_DRV_SERIAL1 ...
+#if SERIAL_TYPE_NUM == IS_HARDWARESERIAL
 	#define SERIAL_TYPE				HardwareSerial
-	#define SERIAL_TYPE_NUM			IS_HARDWARESERIAL
-	// use Serial1 as default serial port to communicate with WiFi module
-	#define AT_DRV_SERIAL1			SERIAL_PORT_HARDWARE_OPEN
-	#if MAX_SOCK_NUM > 1
-		// use Serial2 to communicate the uart2 of our WiFi module
-		#define AT_DRV_SERIAL2			SERIAL_PORT_HARDWARE_OPEN1
+
+	#ifndef AT_DRV_SERIAL1
+		#define AT_DRV_SERIAL1		SERIAL_PORT_HARDWARE_OPEN
 	#endif
-// all other Arduinos
-#else
+
+	#if MAX_SOCK_NUM > 1
+		#ifndef AT_DRV_SERIAL2
+			#define AT_DRV_SERIAL2	SERIAL_PORT_HARDWARE_OPEN1
+		#endif
+	#endif
+#elif SERIAL_TYPE_NUM == IS_SOFTSERIAL
+	#include <SoftwareSerial.h>
+	
+	#define SERIAL_TYPE				SoftwareSerial
+	#define AT_DRV_SERIAL1			mySerial
+#elif SERIAL_TYPE_NUM == IS_ALTSOFTSERIAL
 	#include <AltSoftSerial.h>
 
 	#define SERIAL_TYPE				AltSoftSerial
-	#define SERIAL_TYPE_NUM			IS_ALTSOFTSERIAL
-	// use Serial1 as default serial port to communicate with WiFi module
 	#define AT_DRV_SERIAL1			mySerial
-	//#pragma message "AltSoftSerial in at_drv.h"
+#else
+	// Arduino Mega or "a board that has more than one hardware serial port"
+	#ifdef ARDUINO_AVR_MEGA2560 // || SERIAL_PORT_HARDWARE_OPEN
+		#define SERIAL_TYPE				HardwareSerial
+		#define SERIAL_TYPE_NUM			IS_HARDWARESERIAL
+
+		// use Serial1 as default serial port to communicate with WiFi module
+		#ifndef AT_DRV_SERIAL1
+			#define AT_DRV_SERIAL1			SERIAL_PORT_HARDWARE_OPEN
+		#endif
+
+		#if MAX_SOCK_NUM > 1
+			// use Serial2 to communicate the uart2 of our WiFi module
+			#ifndef AT_DRV_SERIAL2
+				#define AT_DRV_SERIAL2			SERIAL_PORT_HARDWARE_OPEN1
+			#endif
+		#endif
+	// all other Arduinos
+	#else
+		#include <AltSoftSerial.h>
+
+		#define SERIAL_TYPE				AltSoftSerial
+		#define SERIAL_TYPE_NUM			IS_ALTSOFTSERIAL
+		
+		#define AT_DRV_SERIAL1			mySerial
+		//#pragma message "AltSoftSerial in at_drv.h"
+	#endif
 #endif
 
 //#pragma message "SERIAL_TYPE is " SERIAL_TYPE

@@ -5,6 +5,7 @@
 #include <pins_arduino.h>
 #include <IPAddress.h>
 
+#include "../WiFiRM04Config.h"
 #include "at_drv.h"
 
 //#define _DEBUG_
@@ -12,18 +13,21 @@
 //#include "debug.h"
 //}
 
-// define USE_ESCAPE_PIN to use HW pin to switch mode
-#define USE_ESCAPE_PIN
-// use this pin to pull up/down module's ES/RTS pin to switch mode
-#define ESCAPE_PIN				21
-#define ESCAPE_PIN_ACTIVE		LOW
+#ifdef USE_ESCAPE_PIN
+	#ifndef ESCAPE_PIN || ESCAPE_PIN_ACTIVE
+		#error "ESCAPE_PIN and ESCAPE_PIN_ACTIVE have to be set in order to use a hardware pin to switch mode!"
+	#endif
+#endif
 
 // CHECK_TCP_STATE is an experimental feature, disable it by default
 // #define CHECK_TCP_STATE
 
-// Suggest to use 38400, even using hardware UART
-#define DEFAULT_BAUD1			38400
-#define DEFAULT_BAUD2			38400
+#ifndef DEFAULT_BAUD1
+	#define DEFAULT_BAUD1			38400
+#endif
+#ifndef DEFAULT_BAUD2
+	#define DEFAULT_BAUD2			38400
+#endif
 
 // default Tes time should be 100 ms
 #define TES_TIME_IN_MS			100
@@ -45,6 +49,14 @@
 
 	AltSoftSerial mySerial;
 	//#pragma message "AltSoftSerial in at_drv.cpp"
+#elif SERIAL_TYPE_NUM == IS_SOFTSERIAL
+	#include <SoftwareSerial.h>
+	
+	#ifndef SOFTSERIAL_RX_PIN || SOFTSERIAL_TX_PIN
+		#error "SOFTSERIAL_RX_PIN and SOFTSERIAL_TX_PIN have to be set in order to use SoftwareSerial backend!"
+	#endif
+
+	SoftwareSerial mySerial(SOFTSERIAL_RX_PIN, SOFTSERIAL_TX_PIN);
 #endif
 
 // define the client socket port #

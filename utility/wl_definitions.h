@@ -29,6 +29,10 @@
 
 #define NO_SOCKET_AVAIL     255
 
+#define IS_HARDWARESERIAL		1
+#define IS_SOFTSERIAL			2
+#define IS_ALTSOFTSERIAL		3
+
 typedef enum {
 		WL_NO_SHIELD = 255,
         WL_IDLE_STATUS = 0,

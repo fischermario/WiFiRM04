@@ -7,6 +7,8 @@ extern "C" {
   //#include "debug.h"
 }
 
+#include "WiFiRM04Config.h"
+
 // XXX: don't make assumptions about the value of MAX_SOCK_NUM.
 #if MAX_SOCK_NUM == 1
 int16_t 	WiFiRM04Class::_state[MAX_SOCK_NUM] = { NA_STATE };
@@ -155,8 +157,12 @@ uint8_t* WiFiRM04Class::macAddress(uint8_t* mac)
    
 IPAddress WiFiRM04Class::localIP()
 {
-	IPAddress ret;
+	IPAddress ret(0, 0, 0, 0);
+#ifndef LOW_FAT
 	WiFiDrv::getIpAddress(ret);
+#else
+	#pragma message "LOW_FAT mode: WiFiRM04Class::localIP() will not return a valid value!"
+#endif
 	return ret;
 }
 
@@ -188,7 +194,12 @@ uint8_t* WiFiRM04Class::BSSID(uint8_t* bssid)
 
 int32_t WiFiRM04Class::RSSI()
 {
+#ifndef LOW_FAT
     return WiFiDrv::getCurrentRSSI();
+#else
+	#pragma message "LOW_FAT mode: WiFiRM04Class::RSSI() will not return a valid value!"
+	return -60;
+#endif
 }
 
 uint8_t WiFiRM04Class::encryptionType()
@@ -215,12 +226,21 @@ int8_t WiFiRM04Class::scanNetworks()
 
 char* WiFiRM04Class::SSID(uint8_t networkItem)
 {
+#ifndef LOW_FAT
 	return WiFiDrv::getSSIDNetoworks(networkItem);
+#else
+	return "";
+#endif
 }
 
 int32_t WiFiRM04Class::RSSI(uint8_t networkItem)
 {
+#ifndef LOW_FAT
 	return WiFiDrv::getRSSINetoworks(networkItem);
+#else
+	#pragma message "LOW_FAT mode: WiFiRM04Class::RSSI(..) will not return a valid value!"
+	return -60;
+#endif
 }
 
 uint8_t WiFiRM04Class::encryptionType(uint8_t networkItem)
